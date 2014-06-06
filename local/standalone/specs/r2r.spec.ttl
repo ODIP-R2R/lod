@@ -25,6 +25,7 @@ spec:api
 	api:sparqlEndpoint <http://data.rvdata.us/sparql>;
 	api:base "http://localhost:8080/standalone/r2r";
 	extras:enableETags true;
+	api:defaultPageSize "40"^^xsd:integer;
 	api:viewer
 		api:describeViewer,
 		api:labelledDescribeViewer;
@@ -32,6 +33,7 @@ spec:api
 	api:defaultFormatter spec:htmlFormatter;
 	api:endpoint
 		spec:listClasses,
+		spec:listVessels,
 		spec:listVesselsByLabelContains,
 
 		spec:vocabularyEndpoint,
@@ -70,13 +72,29 @@ spec:htmlFormatter
 
 # ENDPOINTS
 
-spec:listClasses
+spec:listClasses	# not working
 	a api:ListEndpoint;
 	api:uriTemplate "/classes";
 	api:exampleRequestPath "/classes";
 	api:selector [
-		api:where "?i rdf:type ?item.";
+		api:where """?i rdf:type ?item.""";
 		api:orderBy "?item";
+	];
+	.
+
+spec:listVessels
+	a api:ListEndpoint;
+	api:uriTemplate "/vessels";
+	api:exampleRequestPath "/vessels";
+	api:variable [
+		api:name "vessels";
+		api:value "{olvessel}#Vessel";
+		api:type rdfs:Resource;
+	];
+	api:selector [
+		api:where """ ?item rdf:type ?vessels . 
+					  ?item rdfs:label ?label . """;
+		api:orderBy "?label";
 	];
 	.
 
