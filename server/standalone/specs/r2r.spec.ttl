@@ -22,17 +22,20 @@ spec:api
 	a api:API;
 	rdfs:label "R2R Vocabulary Service"@en;
 	rdfs:comment "A prototype Vocabulary Service for R2R Project"@en;
-	api:sparqlEndpoint <http://lod.rvdata.us/snorql/?query>;
-	api:base "http://r2r.tw.rpi.edu/rdf";
+	api:sparqlEndpoint <http://data.rvdata.us/sparql>;
+	api:base "http://r2r.tw.rpi.edu/standalone/r2r";
 	extras:enableETags true;
+	api:defaultPageSize "40"^^xsd:integer;
 	api:viewer
-		spec:SKOSViewer,
 		api:describeViewer,
 		api:labelledDescribeViewer;
-	api:defaultViewer spec:SKOSViewer;
+	api:defaultViewer api:labelledDescribeViewer;
 	api:defaultFormatter spec:htmlFormatter;
 	api:endpoint
-		spec:vocabulariesEndpoint,
+		spec:listClasses,
+		spec:listVessels,
+		spec:listVesselsByLabelContains,
+
 		spec:vocabularyEndpoint,
 		spec:termEndpoint,
 		spec:vocabularyTermsEndpoint,
@@ -46,11 +49,12 @@ spec:api
 		spec:RelatedMatchTermsEndpoint,
 		spec:CloseMatchTermsEndpoint,
 		spec:ExactMatchTermsEndpoint,
-		spec:listTermsByExactLabel,
-		spec:listTermsByLabelContains;
+		spec:listTermsByExactLabel;
 	api:variable
-		[api:name "base"; api:value "http://cmspv.tw.rpi.edu/rdf"],
-		[api:name "webapp"; api:value "/elda"],
+		[api:name "base"; api:value "http://data.rvdata.us/id"],
+		[api:name "r2r"; api:value "http://data.rvdata.us/vocab/id/class"],
+		[api:name "olvessel"; api:value "http://schema.oceanlink.org/vessel"],
+		[api:name "webapp"; api:value "/standalone"],
 		[api:name "_suppress_ipto"; api:value "yes"],
 		[api:name "_strip_has"; api:value "yes"] ;
 	.
@@ -61,26 +65,35 @@ spec:htmlFormatter
 	a api:XsltFormatter;
 	api:name "html";
 	api:mimeType "text/html; charset=utf-8";
-	api:stylesheet "lda-assets/xslt/cmspv.xsl";
+	api:stylesheet "lda-assets/xslt/r2r.xsl";
 	.
 
 # VIEWERS
 
-spec:SKOSViewer
-	a api:Viewer;
-	api:name "SKOS Viewer";
-	api:include api:labelledDescribeViewer;
-	extras:describeAllLabel skos:prefLabel;
-	.
-
 # ENDPOINTS
 
-spec:vocabulariesEndpoint
+spec:listClasses	# not working
 	a api:ListEndpoint;
-	api:uriTemplate "/vocabs";
-	api:exampleRequestPath "/vocabs";
+	api:uriTemplate "/classes";
+	api:exampleRequestPath "/classes";
 	api:selector [
-		api:where "?item rdf:type skos:ConceptScheme. ?item skos:prefLabel ?label.";
+		api:where """?i rdf:type ?item.""";
+		api:orderBy "?item";
+	];
+	.
+
+spec:listVessels
+	a api:ListEndpoint;
+	api:uriTemplate "/vessels";
+	api:exampleRequestPath "/vessels";
+	api:variable [
+		api:name "vessels";
+		api:value "{olvessel}#Vessel";
+		api:type rdfs:Resource;
+	];
+	api:selector [
+		api:where """ ?item rdf:type ?vessels . 
+					  ?item rdfs:label ?label . """;
 		api:orderBy "?label";
 	];
 	.
@@ -90,6 +103,24 @@ spec:vocabularyEndpoint
 	api:uriTemplate "/vocab/{vocabulary}";
 	api:itemTemplate "{base}/vocab/{vocabulary}";
 	api:exampleRequestPath "/vocab/nims";
+	.
+
+spec:listVesselsByLabelContains
+	a api:ListEndpoint;
+	api:exampleRequestPath "/vessels?labelContains=Robert";
+	api:uriTemplate "/vessels?labelContains={text}";
+	api:variable [ 
+		api:name "vessels";
+		api:value "{olvessel}#Vessel";
+		api:type rdfs:Resource;
+	] ;
+	api:selector [
+			api:where
+				""" ?item rdf:type ?vessels .
+					?item rdfs:label ?label .
+					FILTER regex( str(?label) , ?text , 'i' ) """;
+			api:orderBy "?label";
+	] ;
 	.
 
 spec:termEndpoint
@@ -310,28 +341,6 @@ spec:listTermsByExactLabel
 						FILTER ( str(?label)=?text ) """;
 			api:orderBy "?label";
 	];
-	.
-
-spec:listTermsByLabelContains
-	a api:ListEndpoint;
-	api:exampleRequestPath "/vocab/nims/terms?anyLabelContains=Regulatory";
-	api:uriTemplate "/vocab/{vocab}/terms?anyLabelContains={text}";
-	api:variable [ 
-		api:name "scheme";
-		api:value "{base}/vocab/{vocab}";
-		api:type rdfs:Resource;
-	] ;
-	api:selector [
-			api:where
-				""" ?item skos:inScheme ?scheme .
-					{ ?item skos:prefLabel ?label }
-						UNION
-						{ ?item skos:altLabel ?label }
-						UNION
-						{ ?item rdfs:label ?label }
-						FILTER regex( str(?label) , ?text , 'i' ) """;
-			api:orderBy "?label";
-	] ;
 	.
 
 ### SHOULD ALREADY WORK IN ELDA ###
