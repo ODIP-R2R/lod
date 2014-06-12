@@ -15,15 +15,17 @@
 
 # R2R prefixes
 
-@prefix r2r:	<http://escience.rpi.edu/ontology/r2r/r2r#> .
 @prefix spec:	<http://r2r.tw.rpi.edu/spec/r2r#> .
+@prefix r2r:	<http://data.rvdata.us/vocab/id/class/> .
+@prefix olvessel: <http://schema.oceanlink.org/vessel#> .
+@prefix olcruise: <http://schema.oceanlink.org/cruise#> .
 
 spec:api
 	a api:API;
 	rdfs:label "R2R Vocabulary Service"@en;
 	rdfs:comment "A prototype Vocabulary Service for R2R Project"@en;
 	api:sparqlEndpoint <http://data.rvdata.us/sparql>;
-	api:base "http://r2r.tw.rpi.edu/standalone/r2r";
+	api:base "http://localhost:8080/standalone/r2r";
 	extras:enableETags true;
 	api:defaultPageSize "40"^^xsd:integer;
 	api:viewer
@@ -34,11 +36,23 @@ spec:api
 	api:endpoint
 		spec:listClasses,
 		spec:listVessels,
-		spec:listVesselsByLabelContains;
+		spec:listVesselsByLabelContains,
+		spec:listCruises,
+		spec:listOrganizations,
+		spec:listPeople,
+		spec:listAwards,
+		spec:listDevices,
+		spec:listEvents,
+		spec:listFilesets,
+		spec:listFormats,
+		spec:listHoldings,
+		spec:listModels,
+		spec:listParticipants,
+		spec:listPorts,
+		spec:listProducts,
+		spec:listReports,
+		spec:listRepositories;
 	api:variable
-		[api:name "base"; api:value "http://data.rvdata.us/id"],
-		[api:name "r2r"; api:value "http://data.rvdata.us/vocab/id/class"],
-		[api:name "olvessel"; api:value "http://schema.oceanlink.org/vessel"],
 		[api:name "webapp"; api:value "/standalone"],
 		[api:name "_suppress_ipto"; api:value "yes"],
 		[api:name "_strip_has"; api:value "yes"] ;
@@ -62,7 +76,7 @@ spec:listClasses	# not working
 	api:uriTemplate "/classes";
 	api:exampleRequestPath "/classes";
 	api:selector [
-		api:where """?i rdf:type ?item.""";
+		api:where """[] rdf:type ?item.""";
 		api:orderBy "?item";
 	];
 	.
@@ -71,37 +85,271 @@ spec:listVessels
 	a api:ListEndpoint;
 	api:uriTemplate "/vessels";
 	api:exampleRequestPath "/vessels";
-	api:variable [
-		api:name "vessels";
-		api:value "{olvessel}#Vessel";
-		api:type rdfs:Resource;
-	];
 	api:selector [
-		api:where """ ?item rdf:type ?vessels . 
-					  ?item rdfs:label ?label . """;
-		api:orderBy "?label";
+		api:filter "type=vessel";
+		api:sort "label";
 	];
 	.
 
 spec:listVesselsByLabelContains
 	a api:ListEndpoint;
-	api:exampleRequestPath "/vessels?labelContains=atlantis";
+	api:exampleRequestPath "/vessels?labelContains=Robert";
 	api:uriTemplate "/vessels?labelContains={text}";
-	api:variable [ 
-		api:name "vessels";
-		api:value "{olvessel}#Vessel";
-		api:type rdfs:Resource;
-	] ;
 	api:selector [
 			api:where
-				""" ?item rdf:type ?vessels .
-					?item rdfs:label ?label .
+				""" ?item rdf:type olvessel:Vessel;
+						rdfs:label ?label .
 					FILTER regex( str(?label) , ?text , 'i' ) """;
 			api:orderBy "?label";
 	] ;
 	.
 
+spec:listCruises # not working
+	a api:ListEndpoint;
+	api:uriTemplate "/cruises";
+	api:exampleRequestPath "/cruises";
+	api:selector [
+		api:filter "type=cruise";
+		api:sort "label";
+	];
+	.
+
+spec:listOrganizations
+	a api:ListEndpoint;
+	api:uriTemplate "/organizations";
+	api:exampleRequestPath "/organizations";
+	api:selector [
+		api:filter "type=organization";
+		api:sort "label";
+	];
+	.
+
+spec:listPeople
+	a api:ListEndpoint;
+	api:uriTemplate "/people";
+	api:exampleRequestPath "/people";
+	api:selector [
+		api:filter "type=person";
+		api:sort "label";
+	];
+	.
+
+spec:listAwards
+	a api:ListEndpoint;
+	api:uriTemplate "/awards";
+	api:exampleRequestPath "/awards";
+	api:selector [
+		api:filter "type=award";
+		api:sort "label";
+	];
+	.
+
+spec:listDevices
+	a api:ListEndpoint;
+	api:uriTemplate "/devices";
+	api:exampleRequestPath "/devices";
+	api:selector [
+		api:filter "type=device";
+		api:sort "label";
+	];
+	.
+
+spec:listEvents
+	a api:ListEndpoint;
+	api:uriTemplate "/events";
+	api:exampleRequestPath "/events";
+	api:selector [
+		api:filter "type=event";
+		api:sort "label";
+	];
+	.
+
+spec:listFilesets
+	a api:ListEndpoint;
+	api:uriTemplate "/filesets";
+	api:exampleRequestPath "/filesets";
+	api:selector [
+		api:filter "type=fileset";
+		api:sort "label";
+	];
+	.
+
+spec:listFormats
+	a api:ListEndpoint;
+	api:uriTemplate "/formats";
+	api:exampleRequestPath "/formats";
+	api:selector [
+		api:filter "type=format";
+		api:sort "label";
+	];
+	.
+
+spec:listHoldings
+	a api:ListEndpoint;
+	api:uriTemplate "/holdings";
+	api:exampleRequestPath "/holdings";
+	api:selector [
+		api:filter "type=holding";
+		api:sort "label";
+	];
+	.
+
+spec:listModels
+	a api:ListEndpoint;
+	api:uriTemplate "/models";
+	api:exampleRequestPath "/models";
+	api:selector [
+		api:filter "type=model";
+		api:sort "label";
+	];
+	.
+
+spec:listParticipants
+	a api:ListEndpoint;
+	api:uriTemplate "/participants";
+	api:exampleRequestPath "/participants";
+	api:selector [
+		api:filter "type=participant";
+		api:sort "label";
+	];
+	.
+
+spec:listPorts
+	a api:ListEndpoint;
+	api:uriTemplate "/ports";
+	api:exampleRequestPath "/ports";
+	api:selector [
+		api:filter "type=port";
+		api:sort "label";
+	];
+	.
+
+spec:listProducts
+	a api:ListEndpoint;
+	api:uriTemplate "/products";
+	api:exampleRequestPath "/products";
+	api:selector [
+		api:filter "type=product";
+		api:sort "label";
+	];
+	.
+
+spec:listReports
+	a api:ListEndpoint;
+	api:uriTemplate "/reports";
+	api:exampleRequestPath "/reports";
+	api:selector [
+		api:filter "type=report";
+		api:sort "label";
+	];
+	.
+
+spec:listRepositories
+	a api:ListEndpoint;
+	api:uriTemplate "/repositories";
+	api:exampleRequestPath "/repositories";
+	api:selector [
+		api:filter "type=repository";
+		api:sort "label";
+	];
+	.
+
 # properties definitions with labels
+
+olvessel:Vessel
+	a rdfs:Class;
+	api:label "vessel";
+	.
+
+olcruise:Cruise
+	a rdfs:Class;
+	api:label "cruise";
+	.
+
+foaf:Organization
+	a rdfs:Class;
+	api:label "organization";
+	.
+
+foaf:Person
+	a rdfs:Class;
+	api:label "person";
+	.
+
+r2r:Award
+	a rdfs:Class;
+	api:label "award";
+	.
+
+r2r:Device
+	a rdfs:Class;
+	api:label "device";
+	.
+
+r2r:Event
+	a rdfs:Class;
+	api:label "event";
+	.
+
+r2r:Fileset
+	a rdfs:Class;
+	api:label "fileset";
+	.
+
+r2r:Format
+	a rdfs:Class;
+	api:label "format";
+	.
+
+r2r:Holding
+	a rdfs:Class;
+	api:label "holding";
+	.
+
+r2r:Model
+	a rdfs:Class;
+	api:label "model";
+	.
+
+r2r:Participant
+	a rdfs:Class;
+	api:label "participant";
+	.
+
+r2r:Port
+	a rdfs:Class;
+	api:label "port";
+	.
+
+r2r:Product
+	a rdfs:Class;
+	api:label "product";
+	.
+
+r2r:Report
+	a rdfs:Class;
+	api:label "report";
+	.
+
+r2r:Repository
+	a rdfs:Class;
+	api:label "repository";
+	.
+
+r2r:Operator
+	a rdf:Property;
+	api:label "operator";
+	.
+
+r2r:Owner
+	a rdf:Property;
+	api:label "owner";
+	.
+
+rdf:type
+	a rdf:Property;
+	api:label "type";
+	.
 
 rdfs:label
 	a rdf:Property;
@@ -187,4 +435,3 @@ dct:subject
 	a rdf:Property;
 	api:label "subject";
 	.
-
