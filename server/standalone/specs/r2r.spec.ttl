@@ -25,7 +25,7 @@ spec:api
 	rdfs:label "R2R Vocabulary Service"@en;
 	rdfs:comment "A prototype Vocabulary Service for R2R Project"@en;
 	api:sparqlEndpoint <http://data.rvdata.us/sparql>;
-	api:base "http://localhost:8080/standalone/r2r";
+	api:base "http://r2r.tw.rpi.edu/standalone/r2r";
 	extras:enableETags true;
 	api:defaultPageSize "40"^^xsd:integer;
 	api:viewer
